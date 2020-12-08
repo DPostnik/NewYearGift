@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
+using NewYearGift.model.gift;
 using NewYearGift.model.sweets;
 using NewYearGift.model.sweets.candy;
 
@@ -8,15 +12,14 @@ namespace NewYearGift.service
 {
     public class GiftService : IGiftService
     {
-        public List<Candy> getCandiesBySugarRange(int min, int max, List<Sweet> sweets)
+        public List<Candy> GetCandiesBySugarRange(int min, int max, Gift gift)
         {
-            
-            List<Candy> candies = new List<Candy>();
-            foreach (var sweet in sweets)
+            var candies = new List<Candy>();
+            foreach (var sweet in gift.Sweets)
             {
                 if (sweet is Candy)
                 {
-                    Candy candy = (Candy) sweet;
+                    Candy candy = (Candy)sweet;
                     if (candy.PercentageOfSugar > min && candy.PercentageOfSugar < max)
                     {
                         candies.Add(candy);
@@ -27,74 +30,46 @@ namespace NewYearGift.service
             return candies;
         }
 
-        public List<Sweet> sortSweetsByName(List<Sweet> sweets)
+        public IOrderedEnumerable<Sweet> SortSweetsByName(Gift gift)
         {
-            bool log = false;
-            Sweet temp;
-            List<Sweet> sortedSweets = sweets;
-            while (!log)
-            {
-                log = true;
-                for (int start = 0; start + 1 < sortedSweets.Count; ++start)
-                {
-                    int compare = sortedSweets[start].Name.CompareTo(sortedSweets[start + 1].Name);
-                    if (compare == -1)
-                    {
-                        log = false;
-                        temp = sortedSweets[start];
-                        sortedSweets[start] = sortedSweets[start + 1];
-                        sortedSweets[start + 1] = temp;
-                    }
-                }
-            }
-
+            var sweets = gift.Sweets.ToList();
+            var sortedSweets = sweets.OrderBy(sweet => sweet.Name);
             return sortedSweets;
         }
 
-        public List<Sweet> SortSweetsByPrice(List<Sweet> sweets)
+        public IOrderedEnumerable<Sweet> SortSweetsByPrice(Gift gift)
         {
-            bool log = false;
-            Sweet temp;
-            List<Sweet> sortedSweets = sweets;
-            while (!log)
-            {
-                log = true;
-                for (int start = 0; start + 1 < sortedSweets.Count; ++start)
-                {
-                    if (sortedSweets[start].PriceForKg < sortedSweets[start + 1].PriceForKg)
-                    {
-                        log = false;
-                        temp = sortedSweets[start];
-                        sortedSweets[start] = sortedSweets[start + 1];
-                        sortedSweets[start + 1] = temp;
-                    }
-                }
-            }
-
+            var sweets = gift.Sweets.ToList();
+            var sortedSweets = sweets.OrderBy(sweet => sweet.TotalPrice);
             return sortedSweets;
         }
 
-        public List<Sweet> SortSweetsByWeight(List<Sweet> sweets)
+        public IOrderedEnumerable<Sweet> SortSweetsByWeight(Gift gift)
         {
-            bool log = false;
-            Sweet temp;
-            List<Sweet> sortedSweets = sweets;
-            while (!log)
+            var sweets = gift.Sweets.ToList();
+            var sortedSweets = sweets.OrderBy(sweet => sweet.Weight);
+            return sortedSweets;
+        }
+
+        public void SerializeGift(Gift gift)
+        {
+            XmlSerializer formatter = new XmlSerializer(typeof(Gift));
+            using (FileStream fs = new FileStream("gift.xml", FileMode.OpenOrCreate))
             {
-                log = true;
-                for (int start = 0; start + 1 < sortedSweets.Count; ++start)
-                {
-                    if (sortedSweets[start].Weight < sortedSweets[start + 1].Weight)
-                    {
-                        log = false;
-                        temp = sortedSweets[start];
-                        sortedSweets[start] = sortedSweets[start + 1];
-                        sortedSweets[start + 1] = temp;
-                    }
-                }
+                formatter.Serialize(fs, gift);
+            }
+        }
+
+        public Gift DeserializeGift()
+        {
+            XmlSerializer formatter = new XmlSerializer(typeof(Gift));
+            Gift gift = null;
+            using (FileStream fs = new FileStream("gift.xml", FileMode.OpenOrCreate))
+            {
+                gift = (Gift)formatter.Deserialize(fs);
             }
 
-            return sortedSweets;
+            return gift;
         }
     }
 }

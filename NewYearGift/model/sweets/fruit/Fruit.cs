@@ -4,27 +4,20 @@ using System.Text;
 
 namespace NewYearGift.model.sweets.fruit
 {
-    public enum Season
-    {
-        Winter, Spring, Summer, Fall
-    }
-
-    public enum Vitamin
-    {
-        А, В, С, Е, К, Н, РР,
-    }
+    [Serializable]
     public class Fruit: Sweet
     {
         public Season Season { get; set; }
-        public Vitamin[] Vitamins { get; set; }
+        public Vitamin Vitamin { get; set; }
+        private Fruit(){}
 
-        public Fruit(double weight, int calories, string name, double priceForKg, Season season, Vitamin[] vitamins) : base(weight, calories, name, priceForKg)
+        public Fruit(double weight, int calories, string name, double priceForKg, Season season, Vitamin vitamin) : base(weight, calories, name, priceForKg)
         {
             this.Season = season;
-            this.Vitamins = vitamins;
+            this.Vitamin = vitamin;
         }
 
-        public override string getInfo()
+        public override string GetInfo()
         {
             return "this is Fruit " + this.Name + " Weight: " + this.Weight;
         }

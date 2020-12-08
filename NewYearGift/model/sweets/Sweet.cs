@@ -4,6 +4,7 @@ using System.Text;
 
 namespace NewYearGift.model.sweets
 {
+    [Serializable]
     public abstract class Sweet
     {
         public double PriceForKg { get; set; }
@@ -12,6 +13,7 @@ namespace NewYearGift.model.sweets
         public string Name { get; set; }
         public double TotalPrice { get; set; }
 
+        protected Sweet(){}
         protected Sweet(double weight, int calories, string name, double priceForKg)
         {
             Weight = weight;
@@ -26,7 +28,7 @@ namespace NewYearGift.model.sweets
             this.TotalPrice = PriceForKg * Weight;
         }
 
-        public abstract string getInfo();
+        public abstract string GetInfo();
 
     }
 }
